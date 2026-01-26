@@ -1,0 +1,6 @@
+typer
+rich
+github-copilot-sdk
+pytest
+tqdm
+orjson
