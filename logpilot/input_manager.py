@@ -6,6 +6,7 @@ def read_logs(path: str) -> Iterator[str]:
     """Yield log lines from a file, directory, or stdin."""
     if path == "-":
         import sys
+
         for line in sys.stdin:
             yield line.rstrip("\n")
     elif os.path.isfile(path):
