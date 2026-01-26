@@ -28,7 +28,6 @@ logpilot analyze <file|dir|-> [options]
 - rich
 - GitHub Copilot SDK
 
-
 ## Setup
 
 1. Clone the repo
