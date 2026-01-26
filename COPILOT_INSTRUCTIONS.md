@@ -2,7 +2,7 @@
 
 ## Coding Style
 
-- Use tabs for indentation.
+- Use 4 spaces for indentation.
 - Use snake_case for variables and functions, PascalCase for classes.
 - Always include type hints.
 - Prefer small, composable functions.

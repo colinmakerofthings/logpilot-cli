@@ -21,6 +21,6 @@ jobs:
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
       - name: Run ruff
-        run: ruff .
+        run: ruff check .
       - name: Run black (check only)
         run: black --check .
