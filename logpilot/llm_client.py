@@ -1,6 +1,50 @@
 import asyncio
+import os
 
-from copilot import CopilotClient
+if os.environ.get("LOGPILOT_MOCK_LLM") == "1":
+
+    class CopilotClient:
+        async def start(self):
+            pass
+
+        async def stop(self):
+            pass
+
+        async def create_session(self, opts):
+            class Session:
+                def on(self, cb):
+                    self.cb = cb
+
+                async def send(self, data):
+                    # Simulate LLM response event
+                    class Event:
+                        class Type:
+                            value = "assistant.message"
+
+                        type = Type()
+                        data = type(
+                            "data", (), {"content": "Mocked summary: Something failed"}
+                        )()
+
+                    self.cb(Event())
+
+                    # Simulate idle event
+                    class IdleEvent:
+                        class Type:
+                            value = "session.idle"
+
+                        type = Type()
+                        data = None
+
+                    self.cb(IdleEvent())
+
+                async def destroy(self):
+                    pass
+
+            return Session()
+
+else:
+    from copilot import CopilotClient
 
 
 class LLMClient:

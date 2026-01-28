@@ -32,6 +32,9 @@ def analyze(
     try:
         with open(path, "r", encoding="utf-8") as f:
             lines = [line.rstrip("\n") for line in f]
+    except PermissionError as e:
+        typer.echo(f"Error: Permission denied reading log file: {e}", err=True)
+        raise typer.Exit(1)
     except Exception as e:
         typer.echo(f"Error reading log file: {e}", err=True)
         raise typer.Exit(1)
