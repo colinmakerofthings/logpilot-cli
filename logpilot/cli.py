@@ -1,7 +1,6 @@
 import typer
 
 from logpilot.chunker import chunk_logs
-from logpilot.input_manager import read_logs
 from logpilot.llm_client import LLMClient
 from logpilot.log_parser import parse_logs
 from logpilot.postprocessor import aggregate_responses
