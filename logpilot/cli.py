@@ -48,9 +48,12 @@ def analyze(
     # 4. Format prompts
     prompts = [format_prompt(chunk) for chunk in chunks]
 
-    # 5. Query LLM
-    llm = LLMClient()
-    responses = [llm.analyze(prompt) for prompt in prompts]
+    # 5. Query LLM (mock if env var set)
+    if os.environ.get("LOGPILOT_MOCK_LLM") == "1":
+        responses = ["Mocked summary: Something failed" for _ in prompts]
+    else:
+        llm = LLMClient()
+        responses = [llm.analyze(prompt) for prompt in prompts]
 
     # 6. Aggregate responses
     summary = aggregate_responses(responses)

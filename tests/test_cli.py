@@ -21,20 +21,16 @@ def test_cli_analyze_basic(tmp_path, monkeypatch):
     log_file = tmp_path / "test.log"
     log_file.write_text(log_content)
 
-    # Patch LLMClient.analyze to avoid Copilot dependency
-    import logpilot.llm_client
+    # Run the CLI analyze command with mock LLM enabled
+    import os
 
-    monkeypatch.setattr(
-        logpilot.llm_client.LLMClient,
-        "analyze",
-        lambda self, prompt: "Mocked summary: Something failed",
-    )
-
-    # Run the CLI analyze command
+    env = dict(os.environ)
+    env["LOGPILOT_MOCK_LLM"] = "1"
     result = subprocess.run(
         [sys.executable, "-m", "logpilot.cli", "analyze", str(log_file)],
         capture_output=True,
         text=True,
+        env=env,
     )
     assert result.returncode == 0
     assert "Something failed" in result.stdout or "critical" in result.stdout.lower()
