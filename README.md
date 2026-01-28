@@ -1,19 +1,42 @@
-# logpilot
+# logpilot 🪵
 
 A Python CLI tool for analyzing logs using the GitHub Copilot SDK.
 
 ## Features
 
-- Accepts logs from files, directories, or stdin
+- Accepts logs from a single file
 - Supports plain text and JSON log formats
-- Batch processing (no real-time/streaming)
 - Uses Copilot SDK for LLM-powered analysis
-- Extensible, modular architecture
 
 ## Usage (MVP)
 
 ```sh
-logpilot analyze <file|dir|-> [options]
+python -m logpilot.cli analyze <file> [OPTIONS]
+```
+
+### Arguments
+
+- `<file>`: Path to a log file (any extension)
+
+### Options
+
+- `--format [auto|json|text]` : Log format (default: auto)
+- `--output [text|json]` : Output type (default: text)
+- `--max-tokens <int>` : Max tokens per chunk (default: 2048)
+- `--out-file <path>` : Write output to file (default: stdout)
+
+### Example
+
+Summarize a log file and print to terminal:
+
+```sh
+python -m logpilot.cli analyze mylog.txt
+```
+
+Summarize a log file and write to a file:
+
+```sh
+python -m logpilot.cli analyze mylog.txt --out-file summary.txt
 ```
 
 ## Project Structure
@@ -34,21 +57,6 @@ logpilot analyze <file|dir|-> [options]
 2. Install dependencies: `pip install -r requirements.txt`
 3. (Recommended) Install dev dependencies: `pip install -r requirements-dev.txt`
 4. Authenticate with Copilot SDK as per GitHub's instructions
-
-## Development
-
-### Linting & Formatting
-
-- Run `ruff .` to lint the codebase.
-- Run `black .` to auto-format code (uses tabs).
-
-### Pre-commit Hooks
-
-To automatically lint and format code before each commit:
-
-1. Install pre-commit: `pip install pre-commit`
-2. Run `pre-commit install` to enable hooks.
-3. Now, ruff and black will run on staged files before every commit.
 
 ## License
 
