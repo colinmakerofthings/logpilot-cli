@@ -18,9 +18,15 @@ class LogEntry:
         self.raw = raw
 
 
-def parse_log_line(line: str, fmt: str = "auto") -> LogEntry:
-    """Parse a log line into a LogEntry. Supports 'json' and 'text'."""
-    if fmt == "json" or (fmt == "auto" and line.strip().startswith("{")):
+def parse_log_line(line: str, fmt: str = "auto") -> Optional[LogEntry]:
+    """
+    Parse a log line into a LogEntry. Supports 'json' and 'text'.
+    Returns None if not valid.
+    """
+    stripped = line.strip()
+    if not stripped:
+        return None
+    if fmt == "json" or (fmt == "auto" and stripped.startswith("{")):
         try:
             data = json.loads(line)
             return LogEntry(
@@ -31,11 +37,16 @@ def parse_log_line(line: str, fmt: str = "auto") -> LogEntry:
                 raw=line,
             )
         except Exception:
-            pass
-    # Fallback: treat as plain text
-    return LogEntry(timestamp=None, level=None, source=None, message=line, raw=line)
+            return None
+    # Fallback: treat as plain text only if it looks like a log
+    # (very basic: must have at least 2 commas)
+    if "," in stripped and stripped.count(",") >= 2:
+        return LogEntry(timestamp=None, level=None, source=None, message=line, raw=line)
+    return None
 
 
 def parse_logs(lines: Iterator[str], fmt: str = "auto") -> Iterator[LogEntry]:
     for line in lines:
-        yield parse_log_line(line, fmt)
+        entry = parse_log_line(line, fmt)
+        if entry is not None:
+            yield entry
