@@ -27,7 +27,7 @@ def test_cli_analyze_basic(tmp_path, monkeypatch):
     env = dict(os.environ)
     env["LOGPILOT_MOCK_LLM"] = "1"
     result = subprocess.run(
-        [sys.executable, "-m", "logpilot.cli", "analyze", str(log_file)],
+        [sys.executable, "-m", "logpilot.cli", str(log_file)],
         capture_output=True,
         text=True,
         env=env,
