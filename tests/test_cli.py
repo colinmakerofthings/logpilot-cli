@@ -11,7 +11,7 @@ def test_cli_shows_help():
     assert "Usage:" in result.stdout or "usage:" in result.stdout
 
 
-def test_cli_analyze_basic(tmp_path):
+def test_cli_analyze_basic(tmp_path, monkeypatch):
     # Create a simple log file
     log_content = (
         '{"timestamp": "2026-01-28T12:00:00Z", '
@@ -20,6 +20,15 @@ def test_cli_analyze_basic(tmp_path):
     )
     log_file = tmp_path / "test.log"
     log_file.write_text(log_content)
+
+    # Patch LLMClient.analyze to avoid Copilot dependency
+    import logpilot.llm_client
+
+    monkeypatch.setattr(
+        logpilot.llm_client.LLMClient,
+        "analyze",
+        lambda self, prompt: "Mocked summary: Something failed",
+    )
 
     # Run the CLI analyze command
     result = subprocess.run(
