@@ -2,7 +2,6 @@
 line-length = 88
 skip-string-normalization = false
 skip-magic-trailing-comma = false
-use-tabs = true
 
 [tool.ruff]
 line-length = 88
