@@ -32,5 +32,5 @@ def test_cli_analyze_basic(tmp_path, monkeypatch):
         text=True,
         env=env,
     )
-    assert result.returncode == 0
+    assert result.returncode == 0, f"stdout: {result.stdout}\nstderr: {result.stderr}"
     assert "Something failed" in result.stdout or "critical" in result.stdout.lower()
