@@ -1,3 +1,6 @@
+[project]
+name = "logpilot"
+version = "0.1.0"
 [tool.black]
 line-length = 88
 skip-string-normalization = false
