@@ -1,5 +1,7 @@
 from typing import List
 
+from tqdm import tqdm
+
 from logpilot.log_parser import LogEntry
 
 
@@ -12,7 +14,7 @@ def chunk_logs(entries: List[LogEntry], max_tokens: int) -> List[List[LogEntry]]
     chunks = []
     current = []
     tokens = 0
-    for entry in entries:
+    for entry in tqdm(entries, desc="Chunking logs", unit="entry"):
         entry_tokens = estimate_tokens(entry.raw)
         if tokens + entry_tokens > max_tokens and current:
             chunks.append(current)

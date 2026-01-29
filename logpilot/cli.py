@@ -47,6 +47,7 @@ def analyze(
 
     # 3. Chunk logs
     chunks = chunk_logs(entries, max_tokens)
+    typer.echo("Analyzing logs...")
 
     # 4. Format prompts
     prompts = [format_prompt(chunk) for chunk in chunks]
