@@ -1,3 +1,4 @@
+toml
 typer
 rich
 git+https://github.com/github/copilot-sdk.git#subdirectory=python

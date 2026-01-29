@@ -20,6 +20,7 @@ python -m logpilot.cli analyze <file> [OPTIONS]
 
 ### Options
 
+- `--version` : Show the current logpilot version and exit
 - `--format [auto|json|text]` : Log format (default: auto)
 - `--output [text|json]` : Output type (default: text)
 - `--max-tokens <int>` : Max tokens per chunk (default: 2048)

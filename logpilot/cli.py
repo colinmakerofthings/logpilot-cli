@@ -1,10 +1,39 @@
+import os
+
 import typer
+
+try:
+    import tomllib
+except ImportError:
+    import toml as tomllib
 
 from logpilot.chunker import chunk_logs
 from logpilot.llm_client import LLMClient
 from logpilot.log_parser import parse_logs
 from logpilot.postprocessor import aggregate_responses
 from logpilot.prompt_engine import format_prompt
+
+
+def get_version() -> str:
+    pyproject_path = os.path.join(
+        os.path.dirname(os.path.dirname(__file__)), "pyproject.toml"
+    )
+    try:
+        with open(pyproject_path, "rb") as f:
+            data = tomllib.load(f)
+        version = data.get("project", {}).get("version")
+        if version:
+            return version
+    except Exception:
+        pass
+    return "unknown"
+
+
+def version_callback(value: bool):
+    if value:
+        typer.echo(f"logpilot version {get_version()}")
+        raise typer.Exit()
+
 
 app = typer.Typer()
 
@@ -68,6 +97,20 @@ def analyze(
             f.write(summary)
     else:
         typer.echo(summary)
+
+
+@app.callback()
+def main(
+    version: bool = typer.Option(
+        None,
+        "--version",
+        help="Show the version and exit.",
+        callback=version_callback,
+        is_eager=True,
+    ),
+):
+    """Logpilot CLI"""
+    pass
 
 
 if __name__ == "__main__":
