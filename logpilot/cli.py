@@ -35,7 +35,7 @@ def version_callback(value: bool):
         raise typer.Exit()
 
 
-app = typer.Typer()
+app = typer.Typer(no_args_is_help=True)
 
 
 @app.command()
@@ -100,6 +100,7 @@ def analyze(
 
 
 @app.callback()
+@app.callback()
 def main(
     version: bool = typer.Option(
         None,
@@ -109,7 +110,14 @@ def main(
         is_eager=True,
     ),
 ):
-    """Logpilot CLI"""
+    """
+    Logpilot CLI
+
+    USAGE:
+      python -m logpilot.cli analyze <file> [OPTIONS]
+
+    Note: You must specify the 'analyze' subcommand before the log file path.
+    """
     pass
 
 
