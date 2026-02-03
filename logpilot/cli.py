@@ -1,4 +1,5 @@
 import os
+from typing import List, Optional
 
 import typer
 
@@ -8,6 +9,7 @@ except ImportError:
     import toml as tomllib
 
 from logpilot.chunker import chunk_logs
+from logpilot.input_manager import iter_log_files, read_logs_from_paths
 from logpilot.llm_client import LLMClient
 from logpilot.log_parser import parse_logs
 from logpilot.postprocessor import aggregate_responses
@@ -40,29 +42,51 @@ app = typer.Typer(no_args_is_help=True)
 
 @app.command()
 def analyze(
-    path: str = typer.Argument(..., help="Path to log file"),
+    path: str = typer.Argument(..., help="Path to log file or directory"),
     format: str = typer.Option("auto", help="Log format: auto, json, text"),
     output: str = typer.Option("text", help="Output type: text or json"),
     max_tokens: int = typer.Option(2048, help="Max tokens per chunk"),
     out_file: str = typer.Option(None, help="Output file path (default: stdout)"),
+    recursive: bool = typer.Option(False, help="Recurse into directories"),
+    include: Optional[List[str]] = typer.Option(
+        None,
+        "--include",
+        help="Glob pattern(s) to include (repeatable).",
+    ),
+    exclude: Optional[List[str]] = typer.Option(
+        None,
+        "--exclude",
+        help="Glob pattern(s) to exclude (repeatable).",
+    ),
 ):
     """Analyze logs using Copilot SDK."""
     import os
 
-    if path == "-" or os.path.isdir(path):
-        typer.echo("Error: Only a single log file is supported.\n", err=True)
+    if path == "-":
+        typer.echo("Error: stdin is not supported.\n", err=True)
         typer.echo(analyze.get_help(typer.Context(analyze)))
-        raise typer.Exit(1)
-    if not os.path.isfile(path):
-        typer.echo(f"Error: File not found: {path}", err=True)
         raise typer.Exit(1)
 
     # 1. Read log lines
     try:
-        with open(path, "r", encoding="utf-8") as f:
-            lines = [line.rstrip("\n") for line in f]
+        paths = list(
+            iter_log_files(
+                path,
+                recursive=recursive,
+                include=include,
+                exclude=exclude,
+            )
+        )
+        if not paths:
+            typer.echo(f"No log files matched: {path}", err=True)
+            raise typer.Exit(1)
+
+        lines = [line for line in read_logs_from_paths(paths)]
     except PermissionError as e:
         typer.echo(f"Error: Permission denied reading log file: {e}", err=True)
+        raise typer.Exit(1)
+    except FileNotFoundError as e:
+        typer.echo(str(e), err=True)
         raise typer.Exit(1)
     except Exception as e:
         typer.echo(f"Error reading log file: {e}", err=True)
@@ -99,7 +123,6 @@ def analyze(
         typer.echo(summary)
 
 
-@app.callback()
 @app.callback()
 def main(
     version: bool = typer.Option(

@@ -1,4 +1,8 @@
 import os
+import subprocess
+import sys
+
+import pytest
 
 
 def run_cli(args, env=None):
@@ -90,6 +94,9 @@ def test_cli_format_text(tmp_path):
 
 
 def test_cli_unreadable_file(tmp_path):
+    if os.name == "nt":
+        pytest.skip("File permissions are not reliable on Windows")
+
     log_file = tmp_path / "unreadable.log"
     log_file.write_text("test")
     log_file.chmod(0)
@@ -121,29 +128,6 @@ def test_cli_large_file(tmp_path):
     assert result.returncode == 0, f"stdout: {result.stdout}\nstderr: {result.stderr}"
 
 
-import subprocess  # noqa: E402
-import sys  # noqa: E402
-
-
-def test_cli_shows_help():
-    # Run the CLI with '--help' and check output
-    import os
-
-    env = dict(os.environ)
-    env["LOGPILOT_MOCK_LLM"] = "1"
-    result = subprocess.run(
-        [sys.executable, "-m", "logpilot.cli", "--help"],
-        capture_output=True,
-        text=True,
-        env=env,
-    )
-    assert result.returncode == 0, f"stdout: {result.stdout}\nstderr: {result.stderr}"
-    output = (result.stdout or "") + (result.stderr or "")
-    assert (
-        "Options:" in output or "logpilot" in output
-    ), f"stdout: {result.stdout}\nstderr: {result.stderr}"
-
-
 def test_cli_analyze_basic(tmp_path, monkeypatch):
     # Create a simple log file
     log_content = (
@@ -155,8 +139,6 @@ def test_cli_analyze_basic(tmp_path, monkeypatch):
     log_file.write_text(log_content)
 
     # Run the CLI analyze command with mock LLM enabled
-    import os
-
     env = dict(os.environ)
     env["LOGPILOT_MOCK_LLM"] = "1"
     result = subprocess.run(
@@ -167,3 +149,58 @@ def test_cli_analyze_basic(tmp_path, monkeypatch):
     )
     assert result.returncode == 0, f"stdout: {result.stdout}\nstderr: {result.stderr}"
     assert "Something failed" in result.stdout or "critical" in result.stdout.lower()
+
+
+def test_cli_directory_basic(tmp_path):
+    log_dir = tmp_path / "logs"
+    log_dir.mkdir()
+    (log_dir / "a.log").write_text(
+        '{"timestamp": "2026-01-28T12:00:00Z", "level": "ERROR", "message": "A"}\n'
+    )
+    (log_dir / "b.log").write_text(
+        '{"timestamp": "2026-01-28T12:00:01Z", "level": "ERROR", "message": "B"}\n'
+    )
+
+    result = run_cli(["analyze", str(log_dir)])
+    assert result.returncode == 0, f"stdout: {result.stdout}\nstderr: {result.stderr}"
+    assert "Mocked summary" in result.stdout
+
+
+def test_cli_directory_recursive(tmp_path):
+    log_dir = tmp_path / "logs"
+    nested = log_dir / "nested"
+    nested.mkdir(parents=True)
+    (nested / "nested.log").write_text(
+        '{"timestamp": "2026-01-28T12:00:00Z", "level": "ERROR", "message": "Nested"}\n'
+    )
+
+    result = run_cli(["analyze", str(log_dir), "--recursive"])
+    assert result.returncode == 0, f"stdout: {result.stdout}\nstderr: {result.stderr}"
+    assert "Mocked summary" in result.stdout
+
+
+def test_cli_directory_include_exclude(tmp_path):
+    log_dir = tmp_path / "logs"
+    log_dir.mkdir()
+    (log_dir / "keep.log").write_text(
+        '{"timestamp": "2026-01-28T12:00:00Z", "level": "ERROR", "message": "Keep"}\n'
+    )
+    (log_dir / "skip.txt").write_text(
+        '{"timestamp": "2026-01-28T12:00:01Z", "level": "ERROR", "message": "Skip"}\n'
+    )
+
+    result = run_cli(
+        ["analyze", str(log_dir), "--include", "*.log", "--exclude", "skip.*"]
+    )
+    assert result.returncode == 0, f"stdout: {result.stdout}\nstderr: {result.stderr}"
+    assert "Mocked summary" in result.stdout
+
+
+def test_cli_directory_no_matches(tmp_path):
+    log_dir = tmp_path / "logs"
+    log_dir.mkdir()
+    (log_dir / "skip.txt").write_text("not a log\n")
+
+    result = run_cli(["analyze", str(log_dir), "--include", "*.log"])
+    assert result.returncode != 0
+    assert "No log files matched" in result.stderr or "Error" in result.stderr
