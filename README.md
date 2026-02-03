@@ -4,19 +4,19 @@ A Python CLI tool for analyzing logs using the GitHub Copilot SDK.
 
 ## Features
 
-- Accepts logs from a single file
+- Accepts logs from a single file or a directory (combined analysis)
 - Supports plain text and JSON log formats
 - Uses Copilot SDK for LLM-powered analysis
 
 ## Usage (MVP)
 
 ```sh
-python -m logpilot.cli analyze <file> [OPTIONS]
+python -m logpilot.cli analyze <path> [OPTIONS]
 ```
 
 ### Arguments
 
-- `<file>`: Path to a log file (any extension)
+- `<path>`: Path to a log file or directory (any extension)
 
 ### Options
 
@@ -25,6 +25,9 @@ python -m logpilot.cli analyze <file> [OPTIONS]
 - `--output [text|json]` : Output type (default: text)
 - `--max-tokens <int>` : Max tokens per chunk (default: 2048)
 - `--out-file <path>` : Write output to file (default: stdout)
+- `--recursive` : Recurse into subdirectories (directory mode)
+- `--include <glob>` : Glob pattern(s) to include (repeatable)
+- `--exclude <glob>` : Glob pattern(s) to exclude (repeatable)
 
 ### Example
 
@@ -32,6 +35,18 @@ Summarize a log file and print to terminal:
 
 ```sh
 python -m logpilot.cli analyze mylog.txt
+```
+
+Summarize all logs in a directory (combined analysis):
+
+```sh
+python -m logpilot.cli analyze ./logs
+```
+
+Summarize logs in a directory recursively with filters:
+
+```sh
+python -m logpilot.cli analyze ./logs --recursive --include "*.log" --exclude "archive/*"
 ```
 
 Summarize a log file and write to a file:
