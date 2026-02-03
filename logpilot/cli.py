@@ -9,11 +9,11 @@ except ImportError:
     import toml as tomllib
 
 from logpilot.chunker import chunk_logs
+from logpilot.input_manager import iter_log_files, read_logs_from_paths
 from logpilot.llm_client import LLMClient
 from logpilot.log_parser import parse_logs
 from logpilot.postprocessor import aggregate_responses
 from logpilot.prompt_engine import format_prompt
-from logpilot.input_manager import iter_log_files, read_logs_from_paths
 
 
 def get_version() -> str:
