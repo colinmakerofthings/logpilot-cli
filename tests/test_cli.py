@@ -204,3 +204,33 @@ def test_cli_directory_no_matches(tmp_path):
     result = run_cli(["analyze", str(log_dir), "--include", "*.log"])
     assert result.returncode != 0
     assert "No log files matched" in result.stderr or "Error" in result.stderr
+
+
+def test_cli_model_option(tmp_path):
+    """Test that the --model option is accepted and works"""
+    log_file = tmp_path / "test.log"
+    log_file.write_text(
+        (
+            '{"timestamp": "2026-01-28T12:00:00Z", '
+            '"level": "ERROR", '
+            '"message": "Something failed"}\n'
+        )
+    )
+    result = run_cli(["analyze", str(log_file), "--model", "gpt-3.5-turbo"])
+    assert result.returncode == 0, f"stdout: {result.stdout}\nstderr: {result.stderr}"
+    assert "Mocked summary" in result.stdout
+
+
+def test_cli_model_option_default(tmp_path):
+    """Test that the default model (gpt-4) still works without specifying --model"""
+    log_file = tmp_path / "test.log"
+    log_file.write_text(
+        (
+            '{"timestamp": "2026-01-28T12:00:00Z", '
+            '"level": "ERROR", '
+            '"message": "Something failed"}\n'
+        )
+    )
+    result = run_cli(["analyze", str(log_file)])
+    assert result.returncode == 0, f"stdout: {result.stdout}\nstderr: {result.stderr}"
+    assert "Mocked summary" in result.stdout
