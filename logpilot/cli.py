@@ -58,6 +58,7 @@ def analyze(
         "--exclude",
         help="Glob pattern(s) to exclude (repeatable).",
     ),
+    model: str = typer.Option("gpt-4", help="LLM model to use (default: gpt-4)"),
 ):
     """Analyze logs using Copilot SDK."""
     import os
@@ -109,7 +110,7 @@ def analyze(
     if os.environ.get("LOGPILOT_MOCK_LLM") == "1":
         responses = ["Mocked summary: Something failed" for _ in prompts]
     else:
-        llm = LLMClient()
+        llm = LLMClient(model=model)
         responses = [llm.analyze(prompt) for prompt in prompts]
 
     # 6. Aggregate responses

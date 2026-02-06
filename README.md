@@ -28,6 +28,7 @@ python -m logpilot.cli analyze <path> [OPTIONS]
 - `--recursive` : Recurse into subdirectories (directory mode)
 - `--include <glob>` : Glob pattern(s) to include (repeatable)
 - `--exclude <glob>` : Glob pattern(s) to exclude (repeatable)
+- `--model <model>` : LLM model to use (default: gpt-4)
 
 ### Example
 
@@ -53,6 +54,12 @@ Summarize a log file and write to a file:
 
 ```sh
 python -m logpilot.cli analyze mylog.txt --out-file summary.txt
+```
+
+Analyze logs with a different model:
+
+```sh
+python -m logpilot.cli analyze mylog.txt --model gpt-3.5-turbo
 ```
 
 ## Project Structure
