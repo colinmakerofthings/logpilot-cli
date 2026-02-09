@@ -1,8 +1,11 @@
 import os
 import subprocess
 import sys
+from unittest.mock import mock_open, patch
 
 import pytest
+
+from logpilot.cli import get_version
 
 
 def run_cli(args, env=None):
@@ -16,12 +19,68 @@ def run_cli(args, env=None):
     )
 
 
+# ============================================================================
+# Unit Tests
+# ============================================================================
+
+
+@pytest.mark.unit
+class TestGetVersion:
+    """Unit tests for the get_version function."""
+
+    def test_get_version_success(self):
+        """Test get_version successfully reads version from pyproject.toml."""
+        version = get_version()
+        # Should return the actual version from pyproject.toml
+        assert version is not None
+        assert isinstance(version, str)
+        # From the actual pyproject.toml, version is "0.1.0"
+        assert version == "0.1.0" or version != "unknown"
+
+    @patch("builtins.open", side_effect=FileNotFoundError)
+    def test_get_version_missing_file(self, mock_file):
+        """Test get_version returns 'unknown' when pyproject.toml is missing."""
+        version = get_version()
+        assert version == "unknown"
+
+    @patch("builtins.open", side_effect=PermissionError)
+    def test_get_version_permission_error(self, mock_file):
+        """Test get_version returns 'unknown' on permission error."""
+        version = get_version()
+        assert version == "unknown"
+
+    @patch("builtins.open", mock_open(read_data=b"invalid toml content [[["))
+    def test_get_version_invalid_toml(self):
+        """Test get_version returns 'unknown' for invalid TOML."""
+        version = get_version()
+        assert version == "unknown"
+
+    @patch("builtins.open", mock_open(read_data=b"[other]\ndata = 'test'"))
+    def test_get_version_missing_project_section(self):
+        """Test get_version returns 'unknown' when project section is missing."""
+        version = get_version()
+        assert version == "unknown"
+
+    @patch("builtins.open", mock_open(read_data=b"[project]\nname = 'test'"))
+    def test_get_version_missing_version_field(self):
+        """Test get_version returns 'unknown' when version field is missing."""
+        version = get_version()
+        assert version == "unknown"
+
+
+# ============================================================================
+# Integration Tests
+# ============================================================================
+
+
+@pytest.mark.integration
 def test_cli_missing_file():
     result = run_cli(["analyze", "not_a_real_file.log"])
     assert result.returncode != 0
     assert "No such file" in result.stderr or "Error" in result.stderr
 
 
+@pytest.mark.integration
 def test_cli_empty_file(tmp_path):
     log_file = tmp_path / "empty.log"
     log_file.write_text("")
@@ -30,6 +89,7 @@ def test_cli_empty_file(tmp_path):
     assert "No log entries found" in result.stderr or "Error" in result.stderr
 
 
+@pytest.mark.integration
 def test_cli_invalid_format(tmp_path):
     log_file = tmp_path / "invalid.log"
     log_file.write_text("not a log line\nnot json\n")
@@ -38,6 +98,7 @@ def test_cli_invalid_format(tmp_path):
     assert "No log entries found" in result.stderr or "Error" in result.stderr
 
 
+@pytest.mark.integration
 def test_cli_out_file(tmp_path):
     log_file = tmp_path / "test.log"
     log_file.write_text(
@@ -53,6 +114,7 @@ def test_cli_out_file(tmp_path):
     assert out_file.read_text().strip() != ""
 
 
+@pytest.mark.integration
 def test_cli_output_json(tmp_path):
     log_file = tmp_path / "test.log"
     log_file.write_text(
@@ -73,6 +135,7 @@ def test_cli_output_json(tmp_path):
         assert result.stdout.strip() != ""
 
 
+@pytest.mark.integration
 def test_cli_format_json(tmp_path):
     log_file = tmp_path / "test.log"
     log_file.write_text(
@@ -86,6 +149,7 @@ def test_cli_format_json(tmp_path):
     assert result.returncode == 0, f"stdout: {result.stdout}\nstderr: {result.stderr}"
 
 
+@pytest.mark.integration
 def test_cli_format_text(tmp_path):
     log_file = tmp_path / "test.log"
     log_file.write_text("plain log line\n")
@@ -93,6 +157,7 @@ def test_cli_format_text(tmp_path):
     assert result.returncode != 0 or "plain log line" in result.stdout
 
 
+@pytest.mark.integration
 def test_cli_unreadable_file(tmp_path):
     if os.name == "nt":
         pytest.skip("File permissions are not reliable on Windows")
@@ -114,6 +179,7 @@ def test_cli_unreadable_file(tmp_path):
         log_file.chmod(0o666)
 
 
+@pytest.mark.integration
 def test_cli_large_file(tmp_path):
     log_file = tmp_path / "large.log"
     log_file.write_text(
@@ -128,6 +194,7 @@ def test_cli_large_file(tmp_path):
     assert result.returncode == 0, f"stdout: {result.stdout}\nstderr: {result.stderr}"
 
 
+@pytest.mark.integration
 def test_cli_analyze_basic(tmp_path, monkeypatch):
     # Create a simple log file
     log_content = (
@@ -151,6 +218,7 @@ def test_cli_analyze_basic(tmp_path, monkeypatch):
     assert "Something failed" in result.stdout or "critical" in result.stdout.lower()
 
 
+@pytest.mark.integration
 def test_cli_directory_basic(tmp_path):
     log_dir = tmp_path / "logs"
     log_dir.mkdir()
@@ -166,6 +234,7 @@ def test_cli_directory_basic(tmp_path):
     assert "Mocked summary" in result.stdout
 
 
+@pytest.mark.integration
 def test_cli_directory_recursive(tmp_path):
     log_dir = tmp_path / "logs"
     nested = log_dir / "nested"
@@ -179,6 +248,7 @@ def test_cli_directory_recursive(tmp_path):
     assert "Mocked summary" in result.stdout
 
 
+@pytest.mark.integration
 def test_cli_directory_include_exclude(tmp_path):
     log_dir = tmp_path / "logs"
     log_dir.mkdir()
@@ -196,6 +266,7 @@ def test_cli_directory_include_exclude(tmp_path):
     assert "Mocked summary" in result.stdout
 
 
+@pytest.mark.integration
 def test_cli_directory_no_matches(tmp_path):
     log_dir = tmp_path / "logs"
     log_dir.mkdir()
