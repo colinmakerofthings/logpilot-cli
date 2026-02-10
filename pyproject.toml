@@ -12,7 +12,7 @@ indent-width = 1
 exclude = [".git", "__pycache__", ".venv", "venv", "env", "build", "dist"]
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I"]
+select = ["E", "F", "W", "I", "S"]
 ignore = []
 
 [tool.ruff.format]
