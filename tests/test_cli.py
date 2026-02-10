@@ -14,11 +14,16 @@ from logpilot.cli import app, get_version
 def run_cli(args, env=None):
     env = dict(os.environ) if env is None else env
     env["LOGPILOT_MOCK_LLM"] = "1"
+    # Construct command with trusted values only
+    cmd = [sys.executable, "-m", "logpilot.cli"]
+    # Arguments are safe without quoting when shell=False
+    cmd.extend(args)
     return subprocess.run(
-        [sys.executable, "-m", "logpilot.cli"] + args,
+        cmd,
         capture_output=True,
         text=True,
         env=env,
+        shell=False,
     )
 
 
@@ -225,11 +230,14 @@ def test_cli_analyze_basic(tmp_path, monkeypatch):
     # Run the CLI analyze command with mock LLM enabled
     env = dict(os.environ)
     env["LOGPILOT_MOCK_LLM"] = "1"
+    # Construct command with trusted values only
+    cmd = [sys.executable, "-m", "logpilot.cli", "analyze", str(log_file)]
     result = subprocess.run(
-        [sys.executable, "-m", "logpilot.cli", "analyze", str(log_file)],
+        cmd,
         capture_output=True,
         text=True,
         env=env,
+        shell=False,
     )
     assert result.returncode == 0, f"stdout: {result.stdout}\nstderr: {result.stderr}"
     assert "Something failed" in result.stdout or "critical" in result.stdout.lower()
@@ -334,7 +342,7 @@ class TestAnalyzeUnitLevel:
         runner = typer.testing.CliRunner()
         result = runner.invoke(app, ["analyze", "-"])
         assert result.exit_code != 0
-        output = (result.stdout or "") + (result.stderr or "")
+        output = result.output
         assert "Error: stdin is not supported" in output
 
     def test_analyze_with_max_tokens(self, tmp_path):
@@ -387,7 +395,7 @@ def test_cli_help_command():
     """Test CLI help command."""
     result = run_cli_direct(["--help"])
     assert result.exit_code == 0
-    output = (result.stdout or "") + (result.stderr or "")
+    output = result.stdout
     assert "Logpilot CLI" in output or "Usage" in output
 
 
@@ -396,7 +404,7 @@ def test_cli_analyze_help(tmp_path):
     """Test analyze subcommand help."""
     result = run_cli_direct(["analyze", "--help"])
     assert result.exit_code == 0
-    output = (result.stdout or "") + (result.stderr or "")
+    output = result.stdout
     assert "Analyze logs" in output or "analyze" in output.lower()
 
 
@@ -736,14 +744,14 @@ class TestCliDirect:
 
         result = run_cli_direct(["analyze", str(log_file)])
         assert result.exit_code != 0
-        output = (result.stdout or "") + (result.stderr or "")
+        output = result.output
         assert "No log entries" in output or "Error" in output
 
     def test_analyze_stdin_not_supported(self):
         """Test that stdin input is rejected."""
         result = run_cli_direct(["analyze", "-"])
         assert result.exit_code != 0
-        output = (result.stdout or "") + (result.stderr or "")
+        output = result.output
         assert "stdin is not supported" in output
 
     def test_analyze_with_all_options(self, tmp_path):

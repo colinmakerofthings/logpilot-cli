@@ -27,8 +27,8 @@ def get_version() -> str:
         version = data.get("project", {}).get("version")
         if version:
             return version
-    except Exception:
-        pass
+    except Exception:  # noqa: S110
+        pass  # Intentionally silent - version detection is optional
     return "unknown"
 
 
