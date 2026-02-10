@@ -1,5 +1,12 @@
 # logpilot 🪵
 
+<!-- badges: start -->
+![Python Version](https://img.shields.io/badge/python-3.9%2B-blue)
+![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
+![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-d7ff64.svg)
+![Security: ruff](https://img.shields.io/badge/security-ruff%20S-orange)
+<!-- badges: end -->
+
 A Python CLI tool for analyzing logs using the GitHub Copilot SDK.
 
 ## Features

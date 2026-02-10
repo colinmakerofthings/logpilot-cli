@@ -12,8 +12,11 @@ indent-width = 1
 exclude = [".git", "__pycache__", ".venv", "venv", "env", "build", "dist"]
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I"]
+select = ["E", "F", "W", "I", "S"]
 ignore = []
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101", "S603"]  # Allow assert and subprocess in tests
 
 [tool.ruff.format]
 indent-style = "tab"

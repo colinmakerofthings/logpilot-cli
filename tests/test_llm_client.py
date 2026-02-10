@@ -6,6 +6,7 @@ import sys
 
 import pytest
 
+# noqa: S603, S607 - Suppress bandit warnings for test code with hardcoded strings
 from logpilot.llm_client import LLMClient
 
 # ============================================================================
@@ -102,7 +103,7 @@ except Exception as e:
 """
     env = dict(os.environ)
     env["LOGPILOT_MOCK_LLM"] = "1"
-    result = subprocess.run(
+    result = subprocess.run(  # noqa: S603
         [sys.executable, "-c", code],
         capture_output=True,
         text=True,
