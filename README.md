@@ -67,6 +67,10 @@ python -m logpilot.cli analyze mylog.txt --out-file summary.txt
 - rich
 - GitHub Copilot SDK
 
+## Supported Platforms
+
+logpilot works on Windows, macOS, and Linux platforms where Python 3.9+ is available.
+
 ## Setup
 
 1. Clone the repo
