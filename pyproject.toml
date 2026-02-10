@@ -9,9 +9,11 @@ skip-magic-trailing-comma = false
 [tool.ruff]
 line-length = 88
 indent-width = 1
+exclude = [".git", "__pycache__", ".venv", "venv", "env", "build", "dist"]
+
+[tool.ruff.lint]
 select = ["E", "F", "W", "I"]
 ignore = []
-exclude = [".git", "__pycache__", ".venv", "venv", "env", "build", "dist"]
 
 [tool.ruff.format]
 indent-style = "tab"

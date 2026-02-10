@@ -1,11 +1,16 @@
 """Shared fixtures for tests."""
 
+import os
 from pathlib import Path
 from typing import List
 
 import pytest
 
 from logpilot.log_parser import LogEntry
+
+# Try to enable mock LLM if it's not already set
+if "LOGPILOT_MOCK_LLM" not in os.environ:
+    os.environ["LOGPILOT_MOCK_LLM"] = "1"
 
 
 @pytest.fixture
