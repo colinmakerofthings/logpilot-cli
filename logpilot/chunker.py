@@ -17,7 +17,9 @@ def _get_encoding():
 			# Use cl100k_base encoding which is used by GPT-4 and GPT-3.5-turbo
 			_encoding = tiktoken.get_encoding("cl100k_base")
 		except Exception:  # noqa: S110
-			# If tiktoken fails, return None and fall back to simple estimation
+			# Catch all exceptions (network errors, file system errors, etc.)
+			# and fall back to simple estimation. Tiktoken may need to download
+			# encoding files, which can fail in various ways.
 			pass
 	return _encoding
 
@@ -43,7 +45,8 @@ def estimate_tokens(text: str) -> int:
 			# Use tiktoken for accurate token counting
 			return max(1, len(encoding.encode(text)))
 		except Exception:  # noqa: S110
-			# Fall back to simple estimation if encoding fails
+			# Catch all encoding errors (invalid UTF-8, memory errors, etc.)
+			# and fall back to simple estimation for robustness
 			pass
 
 	# Simple fallback: approximately 4 characters per token
