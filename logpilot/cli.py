@@ -2,6 +2,7 @@ import os
 from typing import List, Optional
 
 import typer
+from typer.main import get_command
 
 try:
     import tomllib
@@ -26,8 +27,8 @@ def get_version() -> str:
         version = data.get("project", {}).get("version")
         if version:
             return version
-    except Exception:
-        pass
+    except Exception:  # noqa: S110
+        pass  # Intentionally silent - version detection is optional
     return "unknown"
 
 
@@ -38,6 +39,18 @@ def version_callback(value: bool):
 
 
 app = typer.Typer(no_args_is_help=True)
+
+
+def _get_analyze_help() -> str:
+    command = get_command(app)
+    ctx = typer.Context(command)
+    get_subcommand = getattr(command, "get_command", None)
+    if get_subcommand is None:
+        return ""
+    analyze_command = get_subcommand(ctx, "analyze")
+    if analyze_command is None:
+        return ""
+    return analyze_command.get_help(typer.Context(analyze_command))
 
 
 @app.command()
@@ -64,8 +77,10 @@ def analyze(
     import os
 
     if path == "-":
-        typer.echo("Error: stdin is not supported.\n", err=True)
-        typer.echo(analyze.get_help(typer.Context(analyze)))
+        typer.echo("Error: stdin is not supported.", err=True)
+        help_text = _get_analyze_help()
+        if help_text:
+            typer.echo(help_text)
         raise typer.Exit(1)
 
     # 1. Read log lines
