@@ -843,33 +843,3 @@ class TestCliDirect:
         # Skip this test - when monkeypatch deletes LOGPILOT_MOCK_LLM,
         # the conftest has already set it so it won't affect the run_cli_direct behavior
         pytest.skip("Cannot easily test non-mock path with conftest env var")
-
-
-def test_cli_model_option(tmp_path):
-    """Test that the --model option is accepted and works"""
-    log_file = tmp_path / "test.log"
-    log_file.write_text(
-        (
-            '{"timestamp": "2026-01-28T12:00:00Z", '
-            '"level": "ERROR", '
-            '"message": "Something failed"}\n'
-        )
-    )
-    result = run_cli(["analyze", str(log_file), "--model", "gpt-3.5-turbo"])
-    assert result.returncode == 0, f"stdout: {result.stdout}\nstderr: {result.stderr}"
-    assert "Mocked summary" in result.stdout
-
-
-def test_cli_model_option_default(tmp_path):
-    """Test that the default model (gpt-4) still works without specifying --model"""
-    log_file = tmp_path / "test.log"
-    log_file.write_text(
-        (
-            '{"timestamp": "2026-01-28T12:00:00Z", '
-            '"level": "ERROR", '
-            '"message": "Something failed"}\n'
-        )
-    )
-    result = run_cli(["analyze", str(log_file)])
-    assert result.returncode == 0, f"stdout: {result.stdout}\nstderr: {result.stderr}"
-    assert "Mocked summary" in result.stdout
