@@ -29,24 +29,24 @@ class TestEstimateTokens:
 
     def test_estimate_tokens_medium_string(self):
         """Test token estimation for medium-length strings."""
-        # 100 chars = 100 // 4 = 25 tokens
+        # 100 repeated 'x' chars - tiktoken encodes runs of chars efficiently
         text = "x" * 100
         tokens = estimate_tokens(text)
-        assert tokens == 25
+        assert tokens == 13
 
     def test_estimate_tokens_large_string(self):
         """Test token estimation for large strings."""
-        # 10000 chars = 10000 // 4 = 2500 tokens
+        # 10000 repeated 'x' chars - tiktoken encodes runs of chars efficiently
         text = "x" * 10000
         tokens = estimate_tokens(text)
-        assert tokens == 2500
+        assert tokens == 1250
 
     def test_estimate_tokens_unicode(self):
         """Test token estimation with unicode characters."""
-        # Each unicode char still counts as 1 character in Python
+        # Multi-byte unicode chars each use multiple tokens in cl100k_base
         text = "你好世界🚀"  # 5 characters
         tokens = estimate_tokens(text)
-        assert tokens == 1  # 5 // 4 = 1
+        assert tokens == 8
 
     def test_estimate_tokens_single_char(self):
         """Test token estimation for single character."""
@@ -65,9 +65,9 @@ class TestEstimateTokens:
             '"source":"app.main","message":"Application started"}'
         )
         tokens = estimate_tokens(log_line)
-        # Length is ~107 chars, so ~26-27 tokens
+        # tiktoken (cl100k_base) gives ~31 tokens for this JSON log line
         assert tokens > 20
-        assert tokens < 30
+        assert tokens < 40
 
 
 # ============================================================================
@@ -217,22 +217,24 @@ class TestChunkLogsBoundary:
         for chunk in chunks:
             assert len(chunk) == 1
 
+    @patch("logpilot.chunker.estimate_tokens", return_value=10)
     @patch("logpilot.chunker.tqdm", side_effect=lambda x, **kwargs: x)
-    def test_chunk_logs_exact_boundary(self, mock_tqdm):
+    def test_chunk_logs_exact_boundary(self, mock_tqdm, mock_estimate):
         """Test chunking when entries exactly hit the token boundary."""
-        # Create entries that exactly fit the limit
+        # estimate_tokens is mocked to return 10 tokens per entry
         entries = [
             LogEntry(
                 timestamp=f"2024-01-0{i}",
                 level="INFO",
                 source="test",
                 message=f"Entry {i}",
-                raw="x" * 40,  # 10 tokens each
+                raw="x" * 40,
             )
             for i in range(10)
         ]
 
-        # With 50 token limit, should get 5 entries per chunk (50 tokens)
+        # With 50 token limit and 10 tokens each, 5 entries fill one chunk
+        # exactly; the 6th entry (0+10 → 50+10=60 > 50) triggers a new chunk
         chunks = chunk_logs(entries, max_tokens=50)
 
         # Should create 2 chunks
