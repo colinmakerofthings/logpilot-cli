@@ -5,3 +5,4 @@ git+https://github.com/github/copilot-sdk.git#subdirectory=python
 pytest
 tqdm
 orjson
+tiktoken
