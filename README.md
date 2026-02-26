@@ -1,11 +1,13 @@
 # logpilot 🪵
 
 <!-- badges: start -->
-![Python Version](https://img.shields.io/badge/python-3.9%2B-blue)
+[![PyPI version](https://img.shields.io/pypi/v/logpilot.svg)](https://pypi.org/project/logpilot/)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/logpilot.svg)](https://pypi.org/project/logpilot/)
+[![Release](https://github.com/colinmakerofthings/logpilot-cli/actions/workflows/release.yml/badge.svg)](https://github.com/colinmakerofthings/logpilot-cli/actions/workflows/release.yml)
+[![Tests](https://github.com/colinmakerofthings/logpilot-cli/actions/workflows/test.yml/badge.svg)](https://github.com/colinmakerofthings/logpilot-cli/actions/workflows/test.yml)
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)
 ![Linter: ruff](https://img.shields.io/badge/linter-ruff-d7ff64.svg)
-![Security: ruff](https://img.shields.io/badge/security-ruff%20S-orange)
 <!-- badges: end -->
 
 A Python CLI tool for analyzing logs using the GitHub Copilot SDK.
@@ -18,10 +20,10 @@ A Python CLI tool for analyzing logs using the GitHub Copilot SDK.
 - Large logs chunked automatically to stay within the model's context window
 - Uses Copilot SDK for LLM-powered analysis
 
-## Usage (MVP)
+## Usage
 
 ```sh
-python -m logpilot.cli [--version] analyze <path> [OPTIONS]
+logpilot [--version] analyze <path> [OPTIONS]
 ```
 
 ### Global Options
@@ -48,31 +50,31 @@ python -m logpilot.cli [--version] analyze <path> [OPTIONS]
 Summarize a log file and print to terminal:
 
 ```sh
-python -m logpilot.cli analyze mylog.txt
+logpilot analyze mylog.txt
 ```
 
 Summarize all logs in a directory (combined analysis):
 
 ```sh
-python -m logpilot.cli analyze ./logs
+logpilot analyze ./logs
 ```
 
 Summarize logs in a directory recursively with filters:
 
 ```sh
-python -m logpilot.cli analyze ./logs --recursive --include "*.log" --exclude "archive/*"
+logpilot analyze ./logs --recursive --include "*.log" --exclude "archive/*"
 ```
 
 Summarize a log file and write to a file:
 
 ```sh
-python -m logpilot.cli analyze mylog.txt --out-file summary.txt
+logpilot analyze mylog.txt --out-file summary.txt
 ```
 
 Analyze logs with a different model:
 
 ```sh
-python -m logpilot.cli analyze mylog.txt --model gpt-3.5-turbo
+logpilot analyze mylog.txt --model gpt-3.5-turbo
 ```
 
 ## Project Structure
@@ -95,12 +97,32 @@ python -m logpilot.cli analyze mylog.txt --model gpt-3.5-turbo
 
 logpilot works on Windows, macOS, and Linux platforms where Python 3.9+ is available.
 
-## Setup
+## Installation
 
-1. Clone the repo
-2. Install dependencies: `pip install -r requirements.txt`
-3. (Recommended) Install dev dependencies: `pip install -r requirements-dev.txt`
-4. Authenticate with Copilot SDK as per GitHub's instructions
+### From PyPI (recommended)
+
+```sh
+pip install logpilot
+```
+
+> **Note:** `logpilot` requires the [GitHub Copilot SDK](https://github.com/github/copilot-sdk), which is not yet available on PyPI.
+> Install it separately before running `logpilot`:
+>
+> ```sh
+> pip install "git+https://github.com/github/copilot-sdk.git#subdirectory=python"
+> ```
+
+Then authenticate with the Copilot SDK as per [GitHub's instructions](https://github.com/github/copilot-sdk).
+
+### From source (development)
+
+```sh
+git clone https://github.com/your-github-username/logpilot-cli.git
+cd logpilot-cli
+pip install -e .
+# Optional: install dev/test dependencies
+pip install -r requirements-dev.txt
+```
 
 ## License
 
