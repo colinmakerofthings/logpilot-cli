@@ -409,6 +409,7 @@ class TestChunkerIntegration:
 
         # Reset the global encoding cache
         import logpilot.chunker
+
         logpilot.chunker._encoding = None
 
         # Should fall back to simple estimation
