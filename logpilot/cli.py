@@ -18,15 +18,24 @@ from logpilot.prompt_engine import format_prompt
 
 
 def get_version() -> str:
+    # Prefer importlib.metadata for installed packages (includes PyPI installs)
+    try:
+        from importlib.metadata import version
+
+        return version("logpilot")
+    except Exception:  # noqa: S110
+        pass  # Intentionally silent - fall through to pyproject.toml fallback
+
+    # Fallback: read pyproject.toml directly (useful in editable/dev installs)
     pyproject_path = os.path.join(
         os.path.dirname(os.path.dirname(__file__)), "pyproject.toml"
     )
     try:
         with open(pyproject_path, "rb") as f:
             data = tomllib.load(f)
-        version = data.get("project", {}).get("version")
-        if version:
-            return version
+        ver = data.get("project", {}).get("version")
+        if ver:
+            return ver
     except Exception:  # noqa: S110
         pass  # Intentionally silent - version detection is optional
     return "unknown"
