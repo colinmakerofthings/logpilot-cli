@@ -1,8 +1,8 @@
 # logpilot 🪵
 
 <!-- badges: start -->
-[![PyPI version](https://img.shields.io/pypi/v/logpilot.svg)](https://pypi.org/project/logpilot/)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/logpilot.svg)](https://pypi.org/project/logpilot/)
+[![PyPI version](https://img.shields.io/pypi/v/logpilot-cli.svg)](https://pypi.org/project/logpilot-cli/)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/logpilot-cli.svg)](https://pypi.org/project/logpilot-cli/)
 [![Release](https://github.com/colinmakerofthings/logpilot-cli/actions/workflows/release.yml/badge.svg)](https://github.com/colinmakerofthings/logpilot-cli/actions/workflows/release.yml)
 [![Tests](https://github.com/colinmakerofthings/logpilot-cli/actions/workflows/test.yml/badge.svg)](https://github.com/colinmakerofthings/logpilot-cli/actions/workflows/test.yml)
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
@@ -102,7 +102,7 @@ logpilot works on Windows, macOS, and Linux platforms where Python 3.9+ is avail
 ### From PyPI (recommended)
 
 ```sh
-pip install logpilot
+pip install logpilot-cli
 ```
 
 > **Note:** `logpilot` requires the [GitHub Copilot SDK](https://github.com/github/copilot-sdk), which is not yet available on PyPI.
@@ -117,7 +117,7 @@ Then authenticate with the Copilot SDK as per [GitHub's instructions](https://gi
 ### From source (development)
 
 ```sh
-git clone https://github.com/your-github-username/logpilot-cli.git
+git clone https://github.com/colinmakerofthings/logpilot-cli.git
 cd logpilot-cli
 pip install -e .
 # Optional: install dev/test dependencies
@@ -126,4 +126,4 @@ pip install -r requirements-dev.txt
 
 ## License
 
-MIT
+MIT. See [LICENSE](LICENSE).

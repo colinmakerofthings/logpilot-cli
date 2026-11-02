@@ -80,7 +80,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/logpilot
+      url: https://pypi.org/p/logpilot-cli
     steps:
       - name: Download distribution artifacts
         uses: actions/download-artifact@v4

@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "logpilot"
+name = "logpilot-cli"
 version = "0.1.0"
 description = "A CLI tool for AI-powered log analysis using the GitHub Copilot SDK"
 readme = "README.md"

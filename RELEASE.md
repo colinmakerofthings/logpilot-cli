@@ -2,7 +2,7 @@
 
 This document describes how to cut a new release of `logpilot`.
 
-Releases are published to [PyPI](https://pypi.org/project/logpilot/) and a
+Releases are published to [PyPI](https://pypi.org/project/logpilot-cli/) and a
 corresponding [GitHub Release](https://github.com/colinmakerofthings/logpilot-cli/releases)
 is created automatically by the [release workflow](.github/workflows/release.yml).
 
@@ -14,7 +14,7 @@ These steps only need to be done once before the very first release.
 
 ### 1. Configure PyPI Trusted Publishing
 
-`logpilot` uses [OIDC Trusted Publishing](https://docs.pypi.org/trusted-publishers/) —
+`logpilot-cli` uses [OIDC Trusted Publishing](https://docs.pypi.org/trusted-publishers/) —
 no PyPI API token is required.
 
 1. Log in to [pypi.org](https://pypi.org) and go to your account's
@@ -140,7 +140,7 @@ git push origin v0.2.0-rc1
 
 The workflow detects the hyphen and sets `prerelease: true` on the GitHub
 Release automatically. PyPI also treats `rc`, `a`, `b` suffixes as
-pre-releases and will not serve them to users who run `pip install logpilot`
+pre-releases and will not serve them to users who run `pip install logpilot-cli`
 without `--pre`.
 
 ---
@@ -151,12 +151,12 @@ After the workflow completes:
 
 1. Check the [GitHub Release](https://github.com/colinmakerofthings/logpilot-cli/releases)
    page — the sdist and wheel should be attached.
-2. Check [PyPI](https://pypi.org/project/logpilot/) — the new version should
+2. Check [PyPI](https://pypi.org/project/logpilot-cli/) — the new version should
    be visible within a few minutes.
 3. Smoke-test in a clean environment:
 
    ```sh
-   pip install logpilot==0.2.0
+   pip install logpilot-cli==0.2.0
    logpilot --version
    ```
 

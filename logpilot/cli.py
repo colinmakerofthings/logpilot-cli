@@ -22,7 +22,7 @@ def get_version() -> str:
     try:
         from importlib.metadata import version
 
-        return version("logpilot")
+        return version("logpilot-cli")
     except Exception:  # noqa: S110
         pass  # Intentionally silent - fall through to pyproject.toml fallback
 
