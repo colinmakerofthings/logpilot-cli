@@ -2,6 +2,7 @@ import os
 import re
 import subprocess
 import sys
+from importlib.metadata import PackageNotFoundError
 from unittest.mock import mock_open, patch
 
 import pytest
@@ -51,40 +52,53 @@ class TestGetVersion:
     """Unit tests for the get_version function."""
 
     def test_get_version_success(self):
-        """Test get_version successfully reads version from pyproject.toml."""
-        version = get_version()
-        # Should return the actual version from pyproject.toml
-        assert version is not None
-        assert isinstance(version, str)
-        if version != "unknown":
-            assert re.match(r"^\d+\.\d+\.\d+$", version)
+        """Test get_version prefers installed package metadata."""
+        with patch(
+            "importlib.metadata.version", return_value="1.2.3"
+        ) as metadata_version:
+            version = get_version()
 
+        metadata_version.assert_called_once_with("logpilot-cli")
+        assert version == "1.2.3"
+
+    @patch("importlib.metadata.version", side_effect=PackageNotFoundError)
+    def test_get_version_falls_back_to_pyproject(self, metadata_version):
+        """Test get_version reads pyproject.toml if the package is not installed."""
+        version = get_version()
+
+        assert re.match(r"^\d+\.\d+\.\d+$", version)
+
+    @patch("importlib.metadata.version", side_effect=PackageNotFoundError)
     @patch("builtins.open", side_effect=FileNotFoundError)
-    def test_get_version_missing_file(self, mock_file):
+    def test_get_version_missing_file(self, mock_file, metadata_version):
         """Test get_version returns 'unknown' when pyproject.toml is missing."""
         version = get_version()
         assert version == "unknown"
 
+    @patch("importlib.metadata.version", side_effect=PackageNotFoundError)
     @patch("builtins.open", side_effect=PermissionError)
-    def test_get_version_permission_error(self, mock_file):
+    def test_get_version_permission_error(self, mock_file, metadata_version):
         """Test get_version returns 'unknown' on permission error."""
         version = get_version()
         assert version == "unknown"
 
+    @patch("importlib.metadata.version", side_effect=PackageNotFoundError)
     @patch("builtins.open", mock_open(read_data=b"invalid toml content [[["))
-    def test_get_version_invalid_toml(self):
+    def test_get_version_invalid_toml(self, metadata_version):
         """Test get_version returns 'unknown' for invalid TOML."""
         version = get_version()
         assert version == "unknown"
 
+    @patch("importlib.metadata.version", side_effect=PackageNotFoundError)
     @patch("builtins.open", mock_open(read_data=b"[other]\ndata = 'test'"))
-    def test_get_version_missing_project_section(self):
+    def test_get_version_missing_project_section(self, metadata_version):
         """Test get_version returns 'unknown' when project section is missing."""
         version = get_version()
         assert version == "unknown"
 
+    @patch("importlib.metadata.version", side_effect=PackageNotFoundError)
     @patch("builtins.open", mock_open(read_data=b"[project]\nname = 'test'"))
-    def test_get_version_missing_version_field(self):
+    def test_get_version_missing_version_field(self, metadata_version):
         """Test get_version returns 'unknown' when version field is missing."""
         version = get_version()
         assert version == "unknown"
